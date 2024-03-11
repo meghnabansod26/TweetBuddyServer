@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import { readdirSync } from 'fs';
+import { readdirSync } from 'fs/promises'; // Change to fs/promises
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
@@ -38,10 +38,15 @@ app.use(
   })
 );
 
-readdirSync('./routes').map(async (r) => {
-  const { default: route } = await import(`./routes/${r}`);
-  app.use('/api', route);
-});
+async function loadRoutes() {
+  const routeFiles = await readdirSync('./routes');
+  for (const route of routeFiles) {
+    const routeModule = await import(`./routes/${route}`);
+    app.use('/api', routeModule.default);
+  }
+}
+
+loadRoutes();
 
 io.on('connect', (socket) => {
   socket.on('new-post', (newPost) => {
