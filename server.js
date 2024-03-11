@@ -1,22 +1,29 @@
-import express from "express";
-import mongoose from "mongoose";
-import cors from "cors";
-import { readdirSync } from "fs";
-
+// Importing necessary modules
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import { readdirSync } from 'fs';
 import morgan from 'morgan';
-require("dotenv").config();
+import dotenv from 'dotenv';
+import http from 'http';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 
+// Configuring environment variables
+dotenv.config();
+
+// Creating Express app and HTTP server
 const app = express();
-const http = require("http").createServer(app);
-const io = require("socket.io")(http, {
+const server = createServer(app);
+const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-type"],
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-type'],
   },
 });
 
-// db
+// Connecting to the database
 mongoose
   .connect(process.env.DATABASE, {
     useNewUrlParser: true,
@@ -24,11 +31,11 @@ mongoose
     useUnifiedTopology: true,
     useCreateIndex: true,
   })
-  .then(() => console.log("DB connected"))
-  .catch((err) => console.log("DB CONNECTION ERROR => ", err));
+  .then(() => console.log('DB connected'))
+  .catch((err) => console.log('DB CONNECTION ERROR => ', err));
 
-// middlewares
-app.use(express.json({ limit: "5mb" }));
+// Middleware setup
+app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
@@ -36,26 +43,18 @@ app.use(
   })
 );
 
-// autoload routes
-readdirSync("./routes").map((r) => app.use("/api", require(`./routes/${r}`)));
+// Autoload routes
+readdirSync('./routes').map((r) => app.use('/api', require(`./routes/${r}`).default));
 
-// socketio
-// io.on("connect", (socket) => {
-//   // console.log("SOCKET>IO", socket.id);
-//   socket.on("send-message", (message) => {
-//     // console.log("new message received => ", message);
-//     socket.broadcast.emit("receive-message", message);
-//   });
-// });
-
-io.on("connect", (socket) => {
-  // console.log("SOCKET>IO", socket.id);
-  socket.on("new-post", (newPost) => {
-    // console.log("socketio new post => ", newPost);
-    socket.broadcast.emit("new-post", newPost);
+// Socket.io setup
+io.on('connect', (socket) => {
+  socket.on('new-post', (newPost) => {
+    socket.broadcast.emit('new-post', newPost);
   });
 });
 
+// Setting up port
 const port = process.env.PORT || 8000;
 
-http.listen(port, () => console.log(`Server running on port ${port}`));
+// Starting the server
+server.listen(port, () => console.log(`Server running on port ${port}`));
