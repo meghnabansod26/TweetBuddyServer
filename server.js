@@ -1,3 +1,7 @@
-// Use the 'esm' loader to enable ECMAScript Modules syntax
-require = require("esm")(module);
-module.exports = require("./index.js");
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
+const indexModule = require('./index.js').default;
+
+export default indexModule;
+
