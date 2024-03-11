@@ -1,18 +1,17 @@
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-import express, { application } from "express";
+import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import { readdirSync } from "fs";
+import http from "http";
+import socketIO from "socket.io";
 import morgan from "morgan";
 import dotenv from "dotenv";
-
 dotenv.config();
 
 const app = express();
-const http = require("http").createServer(app);
-const io = require("socket.io")(http, {
-  path:"/socket.io",
+const server = http.createServer(app);
+const io = socketIO(server, {
+  path: "/socket.io",
   cors: {
     origin: "http://localhost:3000",
     methods: ["GET", "POST"],
@@ -77,4 +76,4 @@ io.on("connect", (socket) => {
 
 const port = process.env.PORT || 8000;
 
-http.listen(port, () => console.log(`Server running on port ${port}`));
+server.listen(port, () => console.log(`Server running on port ${port}`));
