@@ -20,7 +20,6 @@ const io = new Server(http, {
   },
 });
 
-// db
 mongoose
   .connect(process.env.DATABASE, {
     useNewUrlParser: true,
@@ -31,12 +30,7 @@ mongoose
   .then(() => console.log('DB Connected'))
   .catch((err) => console.log('DB CONNECTION ERROR =>', err));
 
-// middlewares
-app.use(
-  express.json({
-    limit: '5mb',
-  })
-);
+app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
@@ -44,13 +38,11 @@ app.use(
   })
 );
 
-// autoload routes
 readdirSync('./routes').map(async (r) => {
   const { default: route } = await import(`./routes/${r}`);
   app.use('/api', route);
 });
 
-// socketio
 io.on('connect', (socket) => {
   socket.on('new-post', (newPost) => {
     socket.broadcast.emit('new-post', newPost);
