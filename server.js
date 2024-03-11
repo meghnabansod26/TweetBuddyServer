@@ -2,16 +2,13 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import { readdirSync } from "fs";
-import morgan from "morgan";
-import http from "http";
-import { Server } from "socket.io";
 
-import dotenv from "dotenv";
-dotenv.config();
+const morgan = require("morgan");
+require("dotenv").config();
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server, {
+const http = require("http").createServer(app);
+const io = require("socket.io")(http, {
   cors: {
     origin: "http://localhost:3000",
     methods: ["GET", "POST"],
@@ -40,7 +37,7 @@ app.use(
 );
 
 // autoload routes
-readdirSync("./routes").map((r) => app.use("/api", import(`./routes/${r}`)));
+readdirSync("./routes").map((r) => app.use("/api", require(`./routes/${r}`)));
 
 // socketio
 // io.on("connect", (socket) => {
@@ -61,4 +58,4 @@ io.on("connect", (socket) => {
 
 const port = process.env.PORT || 8000;
 
-server.listen(port, () => console.log(`Server running on port ${port}`));
+http.listen(port, () => console.log(`Server running on port ${port}`));
