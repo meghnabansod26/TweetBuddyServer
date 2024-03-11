@@ -1,12 +1,15 @@
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-import express, { application } from "express";
+import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import { readdirSync } from "fs";
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+import http from "http";
+import socketIO from "socket.io";
+import morgan from "morgan";
+import dotenv from "dotenv";
 
-const morgan = require("morgan");
-require("dotenv").config();
+dotenv.config();
 
 const app = express();
 const http = require("http").createServer(app);
