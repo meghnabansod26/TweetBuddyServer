@@ -38,11 +38,10 @@ app.use(
 );
 
 // Autoload routes using dynamic imports
-const routes = readdirSync('./routes');
-for (const route of routes) {
+readdirSync('./routes').map(async (route) => {
   const routeModule = await import(`./routes/${route}`);
   app.use('/api', routeModule.default);
-}
+});
 
 io.on('connect', (socket) => {
   socket.on('new-post', (newPost) => {
