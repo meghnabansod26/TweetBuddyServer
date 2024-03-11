@@ -11,12 +11,13 @@ import { Server } from 'socket.io';
 dotenv.config();
 
 const app = express();
-const server = createServer(app);
-const io = new Server(server, {
+const http = require("http").createServer(app);
+const io = require("socket.io")(http, {
+  path:"/socket.io",
   cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-type'],
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-type"],
   },
 });
 
