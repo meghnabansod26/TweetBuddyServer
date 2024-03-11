@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import { webcrypto } from './nanoid-patch.js';
 
 import express from 'express';
 import mongoose from 'mongoose';
