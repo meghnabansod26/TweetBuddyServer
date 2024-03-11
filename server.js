@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import { readdirSync } from "fs";
 import http from "http";
-import socketIO from "socket.io";
+import * as socketIO from 'socket.io';
 import morgan from "morgan";
 import dotenv from "dotenv";
 dotenv.config();
