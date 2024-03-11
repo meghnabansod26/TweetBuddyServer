@@ -1,4 +1,3 @@
-
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -11,16 +10,17 @@ import { Server } from 'socket.io';
 dotenv.config();
 
 const app = express();
-const http = require("http").createServer(app);
-const io = require("socket.io")(http, {
-  path:"/socket.io",
+const http = createServer(app);
+const io = new Server(http, {
+  path: '/socket.io',
   cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-type"],
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-type'],
   },
 });
 
+// db
 mongoose
   .connect(process.env.DATABASE, {
     useNewUrlParser: true,
@@ -28,10 +28,15 @@ mongoose
     useUnifiedTopology: true,
     useCreateIndex: true,
   })
-  .then(() => console.log('DB connected'))
-  .catch((err) => console.log('DB CONNECTION ERROR => ', err));
+  .then(() => console.log('DB Connected'))
+  .catch((err) => console.log('DB CONNECTION ERROR =>', err));
 
-app.use(express.json({ limit: '5mb' }));
+// middlewares
+app.use(
+  express.json({
+    limit: '5mb',
+  })
+);
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
@@ -39,12 +44,13 @@ app.use(
   })
 );
 
-// Autoload routes using dynamic imports
-readdirSync('./routes').map(async (route) => {
-  const routeModule = await import(`./routes/${route}`);
-  app.use('/api', routeModule.default);
+// autoload routes
+readdirSync('./routes').map(async (r) => {
+  const { default: route } = await import(`./routes/${r}`);
+  app.use('/api', route);
 });
 
+// socketio
 io.on('connect', (socket) => {
   socket.on('new-post', (newPost) => {
     socket.broadcast.emit('new-post', newPost);
@@ -53,4 +59,4 @@ io.on('connect', (socket) => {
 
 const port = process.env.PORT || 8000;
 
-server.listen(port, () => console.log(`Server running on port ${port}`));
+http.listen(port, () => console.log(`Server running on port ${port}`));
