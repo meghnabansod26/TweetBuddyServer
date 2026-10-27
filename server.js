@@ -10,14 +10,18 @@ require("dotenv").config();
 
 const app = express();
 const http = require("http").createServer(app);
+
+const clientUrl = process.env.CLIENT_URL;
+
 const io = require("socket.io")(http, {
-  path:"/socket.io",
+  path: "/socket.io",
   cors: {
-    origin: "http://localhost:3000",
+    origin: clientUrl,
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-type"],
   },
 });
+
 // db
 mongoose
   .connect(process.env.DATABASE, {
