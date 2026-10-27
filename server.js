@@ -9,6 +9,9 @@ const morgan = require("morgan");
 require("dotenv").config();
 
 const app = express();
+app.get("/", (req, res) => {
+  res.send("TweetBuddy API is running successfully!");
+});
 const http = require("http").createServer(app);
 
 const clientUrl = process.env.CLIENT_URL;
